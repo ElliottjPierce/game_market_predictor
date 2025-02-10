@@ -56,10 +56,25 @@ class InvalidGameData(Exception):
         self.entry_id = entry_id
         self.inner = inner
 
+    def __str__(self):
+        return f"Entry {self.entry_id} caused {self.inner}"
+
 class ParsingError(Exception):
     def __init__(self, errs: [str]):
         super().__init__()
         self.parsing_errors = errs
+
+    def __str__(self):
+        if not self.parsing_errors:
+            return "Unknown parsing error."
+
+        if len(self.parsing_errors) == 1:
+            return self.parsing_errors[0]
+
+        result = f"{len(self.parsing_errors)} parsing errors found: "
+        for err in self.parsing_errors:
+            result += '\n' + err
+        return result
 
 def predict_market_from_csv(path: str):
     data = MarketData()
@@ -67,8 +82,6 @@ def predict_market_from_csv(path: str):
     csv = pd.read_csv(path)
     parsing_errors = []
     for line in csv.iterrows():
-        if line[0] & 128 > 0:
-            print(f"parsing line {line[0]}")
         try:
             data.add_record(line[1], f"row: {line[0]}")
         except InvalidGameData as err:
