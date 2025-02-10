@@ -7,6 +7,6 @@ if __name__ == '__main__':
         '--windowed',
         '--noconsole',
         '--noconfirm',
-        '--collect-all=tk_tools',
+        '-p ./.venv/',
         '-n Game Market Predictor'
     ])
