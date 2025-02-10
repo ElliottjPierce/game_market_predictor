@@ -25,8 +25,13 @@ class MainApp(tk.Tk):
 
     def generate(self):
         try:
-            algorithm.predict_market_from_csv(self.input_path.get())
-            self.log("Operation Successful!")
+            data = algorithm.market_data_from_csv(self.input_path.get())
+            if data.skipped_entries:
+                self.log(F"Operation Successful but skipped {len(data.skipped_entries)} invalid entries ({data.total_entries} included).")
+            elif len(data.genre_records) == 0:
+                self.log("Operation Successful but no genres were found.")
+            else:
+                self.log("Operation Successful!")
         except Exception as e:
             self.log(e.__str__())
 
