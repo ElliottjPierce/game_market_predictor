@@ -137,13 +137,16 @@ class InvalidGameData(Exception):
     def __str__(self):
         return f"Entry {self.entry_id} caused {self.inner}"
 
-def market_data_from_csv(path: str, from_year: int, to_year: int) -> MarketData:
+def market_data_from_csv(path: str, from_year: int | None, to_year: int | None) -> MarketData:
     data = MarketData()
 
     csv = pd.read_csv(path)
     for line in csv.iterrows():
         year = line[1]["Year"]
-        if from_year <= year <= to_year:
-            data.add_record(line[1], f"row: {line[0]}")
+        if from_year is not None and year < from_year:
+            continue
+        if to_year is not None and year > to_year:
+            continue
+        data.add_record(line[1], f"row: {line[0]}")
 
     return data
