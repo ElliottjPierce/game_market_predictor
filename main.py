@@ -44,6 +44,34 @@ class MainApp(tk.Tk):
         self.genre_selector = tk.Listbox(self, listvariable=self.genres, state="disabled", height=1)
         self.genre_selector.pack(pady=10)
 
+        self.genre_sales_btn = tk.Button(self, text="Show Genre Sales", command=self.show_genre_sales, state="disabled")
+        self.genre_sales_btn.pack()
+        self.genre_games_btn = tk.Button(self, text="Show Genre Games", command=self.show_genre_games, state="disabled")
+        self.genre_games_btn.pack()
+        self.genre_average_sales_btn = tk.Button(self, text="Show Genre Average Sales", command=self.show_genre_average_sales, state="disabled")
+        self.genre_average_sales_btn.pack()
+
+    def show_genre_sales(self):
+        genres = self.genres.get()
+        for index in range(0, len(genres)):
+            if self.genre_selector.selection_includes(index):
+                genre = genres[index]
+                self.data.genre_records[genre].plot_sales()
+
+    def show_genre_games(self):
+        genres = self.genres.get()
+        for index in range(0, len(genres)):
+            if self.genre_selector.selection_includes(index):
+                genre = genres[index]
+                self.data.genre_records[genre].plot_games()
+
+    def show_genre_average_sales(self):
+        genres = self.genres.get()
+        for index in range(0, len(genres)):
+            if self.genre_selector.selection_includes(index):
+                genre = genres[index]
+                self.data.genre_records[genre].plot_advantage()
+
     def generate(self):
         try:
             self.log("Parsing...")
@@ -65,6 +93,9 @@ class MainApp(tk.Tk):
             self.genres.set([genre for genre in self.data.genre_records.keys()])
             self.genre_selector["state"] = "normal"
             self.genre_selector["height"] = 10
+            self.genre_sales_btn["state"] = "normal"
+            self.genre_games_btn["state"] = "normal"
+            self.genre_average_sales_btn["state"] = "normal"
 
             if self.data.skipped_entries:
                 self.log(F"Operation Successful but skipped {len(self.data.skipped_entries)} invalid entries ({self.data.total_entries} included).")

@@ -93,10 +93,10 @@ class GenreRecord:
         plt.show()
 
     def plot_advantage(self):
-        years_total = [x.year for x in chain(self.history, self.predicted)]
-        advantage_total = [x.ratio() for x in chain(self.history, self.predicted)]
-        years_history = [x.year for x in self.history]
-        advantage_history = [x.ratio() for x in self.history]
+        years_total = [x.year for x in chain(self.history, self.predicted) if x.games > 0]
+        advantage_total = [x.ratio() for x in chain(self.history, self.predicted) if x.games > 0]
+        years_history = [x.year for x in self.history if x.games > 0]
+        advantage_history = [x.ratio() for x in self.history if x.games > 0]
 
         plt.plot(years_total, advantage_total, color="y")
         plt.scatter(years_history, advantage_history, color="b")
