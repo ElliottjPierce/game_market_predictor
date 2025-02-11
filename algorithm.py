@@ -124,9 +124,9 @@ class MarketData:
         except Exception as err:
             self.skipped_entries.append(InvalidGameData(entry_id, err))
 
-    def create_models(self):
+    def predict(self, up_to: int):
         for genre in self.genre_records.values():
-            genre.make_model()
+            genre.predict(up_to)
 
 class InvalidGameData(Exception):
     def __init__(self, entry_id, inner: Exception):
@@ -137,16 +137,13 @@ class InvalidGameData(Exception):
     def __str__(self):
         return f"Entry {self.entry_id} caused {self.inner}"
 
-def market_data_from_csv(path: str) -> MarketData:
+def market_data_from_csv(path: str, from_year: int, to_year: int) -> MarketData:
     data = MarketData()
 
     csv = pd.read_csv(path)
     for line in csv.iterrows():
-        data.add_record(line[1], f"row: {line[0]}")
+        year = line[1]["Year"]
+        if from_year <= year <= to_year:
+            data.add_record(line[1], f"row: {line[0]}")
 
-    tmp = data.genre_records["Sports"]
-    tmp.predict(2020)
-    tmp.plot_sales()
-    tmp.plot_games()
-    tmp.plot_advantage()
     return data
