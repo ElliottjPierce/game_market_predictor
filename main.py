@@ -26,6 +26,8 @@ class MainApp(tk.Tk):
     def generate(self):
         try:
             data = algorithm.market_data_from_csv(self.input_path.get())
+            data.create_models()
+
             if data.skipped_entries:
                 self.log(F"Operation Successful but skipped {len(data.skipped_entries)} invalid entries ({data.total_entries} included).")
             elif len(data.genre_records) == 0:
