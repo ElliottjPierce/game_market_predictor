@@ -38,7 +38,11 @@ class MainApp(tk.Tk):
         self.log_display.pack()
 
         self.generator = tk.Button(self, text="Generate", command=self.generate)
-        self.generator.pack()
+        self.generator.pack(pady=10)
+
+        self.genres = tk.Variable(master=self, value=[])
+        self.genre_selector = tk.Listbox(self, listvariable=self.genres, state="disabled", height=1)
+        self.genre_selector.pack(pady=10)
 
     def generate(self):
         try:
@@ -58,6 +62,9 @@ class MainApp(tk.Tk):
 
             self.log("Parsed. Predicting...")
             self.data.predict(int(predict_to))
+            self.genres.set([genre for genre in self.data.genre_records.keys()])
+            self.genre_selector["state"] = "normal"
+            self.genre_selector["height"] = 10
 
             if self.data.skipped_entries:
                 self.log(F"Operation Successful but skipped {len(self.data.skipped_entries)} invalid entries ({self.data.total_entries} included).")
