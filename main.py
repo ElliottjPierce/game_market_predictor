@@ -46,10 +46,15 @@ class MainApp(tk.Tk):
 
         self.genre_sales_btn = tk.Button(self, text="Show Genre Sales", command=self.show_genre_sales, state="disabled")
         self.genre_sales_btn.pack()
+
         self.genre_games_btn = tk.Button(self, text="Show Genre Games", command=self.show_genre_games, state="disabled")
         self.genre_games_btn.pack()
+
         self.genre_average_sales_btn = tk.Button(self, text="Show Genre Average Sales", command=self.show_genre_average_sales, state="disabled")
         self.genre_average_sales_btn.pack()
+
+        self.advantages_btn = tk.Button(self, text="Show Averages Sales Per Genre", command=self.plot_advantages, state="disabled")
+        self.advantages_btn.pack(pady=10)
 
     def show_genre_sales(self):
         genres = self.genres.get()
@@ -71,6 +76,9 @@ class MainApp(tk.Tk):
             if self.genre_selector.selection_includes(index):
                 genre = genres[index]
                 self.data.genre_records[genre].plot_advantage()
+
+    def plot_advantages(self):
+        self.data.plot_advantages()
 
     def generate(self):
         try:
@@ -96,6 +104,7 @@ class MainApp(tk.Tk):
             self.genre_sales_btn["state"] = "normal"
             self.genre_games_btn["state"] = "normal"
             self.genre_average_sales_btn["state"] = "normal"
+            self.advantages_btn["state"] = "normal"
 
             if self.data.skipped_entries:
                 self.log(F"Operation Successful but skipped {len(self.data.skipped_entries)} invalid entries ({self.data.total_entries} included).")

@@ -128,6 +128,9 @@ class MarketData:
         for genre in self.genre_records.values():
             genre.predict(up_to)
 
+    def plot_advantages(self):
+        pass
+
 class InvalidGameData(Exception):
     def __init__(self, entry_id, inner: Exception):
         super().__init__()
