@@ -129,7 +129,16 @@ class MarketData:
             genre.predict(up_to)
 
     def plot_advantages(self):
-        pass
+        colors = iter(plt.cm.rainbow(np.linspace(0, 1, len(self.genre_records))))
+
+        for (genre, record) in self.genre_records.items():
+            years_total = [x.year for x in chain(record.history, record.predicted) if x.games > 0]
+            advantage_total = [x.ratio() for x in chain(record.history, record.predicted) if x.games > 0]
+            plt.plot(years_total, advantage_total, color=next(colors), label=genre)
+
+        plt.legend()
+        plt.title("Average Sales Per Genre")
+        plt.show()
 
 class InvalidGameData(Exception):
     def __init__(self, entry_id, inner: Exception):
