@@ -139,11 +139,19 @@ class MarketData:
     def plot_advantages(self):
         colors = iter(plt.cm.rainbow(np.linspace(0, 1, len(self.genre_records))))
 
+        earliest_prediction_threshold = 30_000
         for (genre, record) in self.genre_records.items():
             years_total = [x.year for x in chain(record.history, record.predicted) if x.games > 0]
             advantage_total = [x.ratio() for x in chain(record.history, record.predicted) if x.games > 0]
-            plt.plot(years_total, advantage_total, color=next(colors), label=genre)
+            years_history = [x.year for x in record.history if x.games > 0]
+            advantage_history = [x.ratio() for x in record.history if x.games > 0]
 
+            color = next(colors)
+            earliest_prediction_threshold = min(earliest_prediction_threshold, record.history[-1].year)
+            plt.plot(years_total, advantage_total, color=color, label=genre)
+            plt.scatter(years_history, advantage_history, color=color)
+
+        plt.axvline(x=earliest_prediction_threshold, color="w", label="Prediction Threshold")
         plt.legend()
         plt.title("Average Sales Per Genre")
         plt.show()
