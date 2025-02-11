@@ -3,14 +3,15 @@ from itertools import chain
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
 
 class Advantage:
-    def __init__(self, year: int, sales: int = 0, games: int = 0):
+    def __init__(self, year: int, sales: int = 0, games: float = 0):
         self.sales = sales
         self.games = games
         self.year = year
+
+    def ratio(self):
+        return self.sales / self.games
 
 class GenreRecord:
     def __init__(self, name: str):
@@ -41,55 +42,67 @@ class GenreRecord:
         return self.history[int(index)]
 
     def make_model(self):
-        years_data = [[x.year] for x in self.history]
+        years_data = [x.year for x in self.history]
         sales_data = [x.sales for x in self.history]
         games_data = [x.games for x in self.history]
 
-        poly_features = PolynomialFeatures(degree=len(self.history) + 1)
-        poly_years = poly_features.fit_transform(years_data)
+        self.sales_model = np.poly1d(np.polyfit(years_data, sales_data, len(years_data) / 15))
+        self.games_model = np.poly1d(np.polyfit(years_data, games_data, len(years_data) / 15))
 
-        self.sales_model = LinearRegression()
-        self.sales_model.fit(poly_years, sales_data)
-
-        self.games_model = LinearRegression()
-        self.games_model.fit(poly_years, games_data)
-
-    def predict(self, up_to: int):
+    def direct_predict(self, year: int):
         if self.games_model is None or self.sales_model is None:
             self.make_model()
+        prediction = Advantage(year)
+        prediction.sales = max(self.sales_model(year), 0)
+        prediction.games = max(self.games_model(year), 0)
+        return prediction
 
+    def predict(self, up_to: int):
         self.predicted.clear()
         next_year = self.history[-1].year
         while next_year <= up_to:
             next_year += 1
-            prediction = Advantage(next_year)
-            prediction.sales = self.sales_model.predict([[next_year]])
-            prediction.games = self.games_model.predict([[next_year]])
-            self.predicted.append(prediction)
+            self.predicted.append(self.direct_predict(next_year))
 
     def predict_advantage(self, year: int) -> Advantage:
         if year > self.predicted[-1].year:
-            if self.games_model is None or self.sales_model is None:
-                self.make_model()
-            result = Advantage(year)
-            result.sales = self.sales_model.predict([[year]])
-            result.games = self.games_model.predict([[year]])
-            return result
+            return self.direct_predict(year)
         else:
             prediction_index = year - self.history[-1].year
             return self.predicted[prediction_index]
 
-    def plot_data(self):
-        years_data = [x.year for x in chain(self.history, self.predicted)]
-        sales_data = [x.sales for x in chain(self.history, self.predicted)]
-        games_data = [x.games for x in chain(self.history, self.predicted)]
-        color = ["r" if x.year > self.history[-1] else "g" for x in chain(self.history, self.predicted)]
+    def plot_sales(self):
+        years_total = [x.year for x in chain(self.history, self.predicted)]
+        sales_total = [x.sales for x in chain(self.history, self.predicted)]
+        years_history = [x.year for x in self.history]
+        sales_history = [x.sales for x in self.history]
 
-        plt.bar([0, 1], [2, 3])
-        # plt.bar(years_data, sales_data)
-        # plt.bar(years_data, games_data, color=color)
+        plt.plot(years_total, sales_total, color="y")
+        plt.scatter(years_history, sales_history, color="b")
+        plt.title(f"{self.name}'s Sales")
         plt.show()
 
+    def plot_games(self):
+        years_total = [x.year for x in chain(self.history, self.predicted)]
+        games_total = [x.games for x in chain(self.history, self.predicted)]
+        years_history = [x.year for x in self.history]
+        games_history = [x.games for x in self.history]
+
+        plt.plot(years_total, games_total, color="y")
+        plt.scatter(years_history, games_history, color="b")
+        plt.title(f"{self.name}'s Games")
+        plt.show()
+
+    def plot_advantage(self):
+        years_total = [x.year for x in chain(self.history, self.predicted)]
+        advantage_total = [x.ratio() for x in chain(self.history, self.predicted)]
+        years_history = [x.year for x in self.history]
+        advantage_history = [x.ratio() for x in self.history]
+
+        plt.plot(years_total, advantage_total, color="y")
+        plt.scatter(years_history, advantage_history, color="b")
+        plt.title(f"{self.name}'s Advantage")
+        plt.show()
 
 class MarketData:
     def __init__(self):
@@ -134,5 +147,7 @@ def market_data_from_csv(path: str) -> MarketData:
 
     tmp = data.genre_records["Sports"]
     tmp.predict(2020)
-    tmp.plot_data()
+    tmp.plot_sales()
+    tmp.plot_games()
+    tmp.plot_advantage()
     return data
