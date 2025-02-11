@@ -33,6 +33,9 @@ class MainApp(tk.Tk):
         self.predict_date = TextEntry(self, text="Predict year:")
         self.predict_date.pack()
 
+        self.degree_divisor = TextEntry(self, text="(Advanced) Custom polynomial degree divisor:")
+        self.degree_divisor.pack()
+
         self.logs = tk.StringVar()
         self.log_display = tk.Label(self, textvariable=self.logs)
         self.log_display.pack()
@@ -97,7 +100,8 @@ class MainApp(tk.Tk):
                 return
 
             self.log("Parsed. Predicting...")
-            self.data.predict(int(predict_to))
+            polynomial_degree = self.degree_divisor.value.get()
+            self.data.predict(int(predict_to), custom_degree_divisor=polynomial_degree)
             self.genres.set([genre for genre in self.data.genre_records.keys()])
             self.genre_selector["state"] = "normal"
             self.genre_selector["height"] = 10

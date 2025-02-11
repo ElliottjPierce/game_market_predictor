@@ -21,6 +21,7 @@ class GenreRecord:
         self.sales_model = None
         self.games_model = None
         self.predicted = []
+        self.degree_divisor = 15
 
     def get_advantage(self, year: int) -> Advantage:
         if not self.history:
@@ -47,8 +48,8 @@ class GenreRecord:
         sales_data = [x.sales for x in self.history]
         games_data = [x.games for x in self.history]
 
-        self.sales_model = np.poly1d(np.polyfit(years_data, sales_data, len(years_data) / 15))
-        self.games_model = np.poly1d(np.polyfit(years_data, games_data, len(years_data) / 15))
+        self.sales_model = np.poly1d(np.polyfit(years_data, sales_data, int(len(years_data) / self.degree_divisor)))
+        self.games_model = np.poly1d(np.polyfit(years_data, games_data, int(len(years_data) / self.degree_divisor)))
 
     def direct_predict(self, year: int):
         if self.games_model is None or self.sales_model is None:
@@ -126,7 +127,12 @@ class MarketData:
         except Exception as err:
             self.skipped_entries.append(InvalidGameData(entry_id, err))
 
-    def predict(self, up_to: int):
+    def predict(self, up_to: int, custom_degree_divisor: str | None = None):
+        if custom_degree_divisor:
+            custom_degree_divisor = int(custom_degree_divisor)
+            for genre in self.genre_records.values():
+                genre.degree_divisor = custom_degree_divisor
+
         for genre in self.genre_records.values():
             genre.predict(up_to)
 
