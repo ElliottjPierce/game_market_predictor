@@ -18,7 +18,7 @@ class MainApp(tk.Tk):
         self.title("Game Market Predictor")
         self.data = None
 
-        self.instructions = tk.Label(self, text="Instructions: \n Complete the following prompts and click 'Generate' to produce the results.", font=('Arial', 18))
+        self.instructions = tk.Label(self, text="Instructions: \n Complete the following prompts \n and click 'Generate' to produce the results. \n See documentation elsewhere for more information.", font=('Arial', 18))
         self.instructions.pack(padx=20, pady=20)
 
         self.input_path = TextEntry(self, text="Path to game data:", initial="~/desktop/vgsales.csv")
